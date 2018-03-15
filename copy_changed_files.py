@@ -20,7 +20,8 @@ destDir = sys.argv[2]
 
 signal.signal(signal.SIGINT, exitHandler)
 
-excludeSuffix = ['.kate-swp','.swp']    # list of excluded files suffixes
+excludeFileSuffix = ['.kate-swp','.swp']    # list of excluded files suffixes
+excludeDirs = ['.git', '.kdev4']                 # list of excluded directiories
 
 # get list of files and their modificaton time
 filesMap = {}
@@ -28,12 +29,16 @@ filesMap = {}
 def directoryTreeWalker(firstRun):
     """Go through directiories and check for modified files"""
     for root, dirs,files in os.walk(sourceDir):
+
+        for directory in excludeDirs:
+            if directory in dirs:
+                dirs.remove(directory)  # don't visit excluded directory
+
         for fname in files:
             path = os.path.join(root, fname)
-            if any(path.endswith(end) for end in excludeSuffix):
+            if any(fname.endswith(end) for end in excludeFileSuffix):
                 continue
-            st = os.stat(path)
-            mtime = datetime.fromtimestamp(st.st_mtime)
+            mtime = os.stat(path).st_mtime
             if firstRun:        # first time remember all files last modificaton time
                 filesMap[path] = mtime
             else:               # next runs check if any file modified and copy
@@ -44,7 +49,7 @@ def directoryTreeWalker(firstRun):
                     if not os.path.exists(os.path.dirname(destFile)):
                         os.makedirs(os.path.dirname(destFile))
                     shutil.copy(path, destFile)
-                    print('Copied: %s > %s  %s'%(path, destFile, mtime.strftime("%Y-%m-%d %H:%M:%S")))
+                    print('Copied: %s > %s  %s'%(path, destFile, datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S")))
 
 
 directoryTreeWalker(True)
