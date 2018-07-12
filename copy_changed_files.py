@@ -20,8 +20,8 @@ destDir = sys.argv[2]
 
 signal.signal(signal.SIGINT, exitHandler)
 
-excludeFileSuffix = ['.kate-swp','.swp']    # list of excluded files suffixes
-excludeDirs = ['.git', '.kdev4']                 # list of excluded directiories
+excludeFileSuffix = ['.kate-swp','.swp', '___']    # list of excluded files suffixes
+excludeDirs = ['.git', '.kdev4', '.idea']                 # list of excluded directiories
 
 # get list of files and their modificaton time
 filesMap = {}
